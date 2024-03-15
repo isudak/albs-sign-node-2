@@ -26,20 +26,23 @@ jobs:
         # https://github.com/marketplace/actions/docker-setup-buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Dockerfile
+      - name: Build Dockerfile using cache
         # https://github.com/marketplace/actions/build-and-push-docker-images
         uses: docker/build-push-action@v5
         with:
           context: .
+          load: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Run Pytest
         id: pytest
         run: |
-          docker compose run --rm sign_node pytest -v --cov \
-            --cov-report=json:pytest-report.json \
-            --cov-report=term | tee pytest-report.txt || true
+          docker compose run --rm sign_node bash -c "
+            pytest -v --cov \
+              --cov-report=json:pytest-report.json \
+              --cov-report=term | tee pytest-report.txt"
+
           python -c "
           import os, json
           coverage = json.load(open('pytest-report.json'))['totals']['percent_covered_display']

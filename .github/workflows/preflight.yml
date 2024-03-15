@@ -60,10 +60,12 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Run Pytest
-        run: docker compose run --rm sign_node pytest -v --cov
-                --junit-xml=$REPORTS_DIR/pytest-report.xml
-                --cov-report=xml:$REPORTS_DIR/pytest-coverage.xml
-                --cov-report=term | tee $REPORTS_DIR/pytest-report.txt || true
+        run: |
+          docker compose run --rm sign_node bash -c "
+            pytest -v --cov \
+              --junit-xml=$REPORTS_DIR/pytest-report.xml \
+              --cov-report=xml:$REPORTS_DIR/pytest-coverage.xml \
+              --cov-report=term | tee $REPORTS_DIR/pytest-report.txt"
 
       - name: Save environment
         run: |
